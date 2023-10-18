@@ -211,7 +211,7 @@ The following example assumes that you want to generate the frameworks to some/p
 ```
 flutter build ios-framework --output=some/path/MyApp/Flutter/
 ```
-
+```
 some/path/MyApp/
 └── Flutter/
     ├── Debug/
@@ -229,3 +229,4 @@ some/path/MyApp/
         ├── App.xcframework
         ├── FlutterPluginRegistrant.xcframework
         └── example_plugin.xcframework
+```
