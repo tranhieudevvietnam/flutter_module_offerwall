@@ -1,6 +1,0 @@
-framework module eums {
-  umbrella header "eums-umbrella.h"
-
-  export *
-  module * { export * }
-}
