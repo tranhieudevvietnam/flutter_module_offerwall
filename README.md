@@ -73,6 +73,7 @@ dependencies {
 ### Step 2: Add a normal Flutter screen
 
 - Add FlutterActivity to AndroidManifest.xml
+  
 Flutter provides FlutterActivity to display a Flutter experience within an Android app. Like any other Activity, FlutterActivity must be registered in your AndroidManifest.xml. Add the following XML to your AndroidManifest.xml file under your application tag:
 
 ```
@@ -89,6 +90,7 @@ The reference to @style/LaunchTheme can be replaced by any Android theme that wa
 
 
 - Launch FlutterActivity
+  
 With FlutterActivity registered in your manifest file, add code to launch FlutterActivity from whatever point in your app that you’d like. The following example shows FlutterActivity being launched from an OnClickListener.
 ```
 import io.flutter.embedding.android.FlutterActivity;
