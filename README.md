@@ -256,3 +256,5 @@ After linking the frameworks, you should see them in the Frameworks, Libraries, 
 
 They will then appear under Embed Frameworks within Build Phases as follows:
 ![Alt text](image-2.png)
+You should now be able to build the project in Xcode using ⌘B.
+
