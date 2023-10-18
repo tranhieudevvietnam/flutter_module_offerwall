@@ -230,3 +230,29 @@ some/path/MyApp/
         ├── FlutterPluginRegistrant.xcframework
         └── example_plugin.xcframework
 ```
+Warning: Always use Flutter.xcframework and App.xcframework from the same directory. Mixing .xcframework imports from different directories (such as Profile/Flutter.xcframework with Debug/App.xcframework) causes runtime crashes.
+
+Link and embed the generated frameworks into your existing application in Xcode. There are multiple ways to do this—use the method that is best for your project.
+
+- Link on the frameworks
+
+For example, you can drag the frameworks from some/path/MyApp/Flutter/Release/ in Finder into your target’s Build Settings > Build Phases > Link Binary With Libraries.
+
+In the target’s build settings, add $(PROJECT_DIR)/Flutter/Release/ to the Framework Search Paths (FRAMEWORK_SEARCH_PATHS).
+
+![Alt text](image-1.png)
+
+Tip: To use the simulator, you will need to embed the Debug version of the Flutter frameworks in your Debug build configuration. To do this you can use $(PROJECT_DIR)/Flutter/$(CONFIGURATION) in the Framework Search Paths (FRAMEWORK_SEARCH_PATHS) build setting. This embeds the Release frameworks in the Release configuration, and the Debug frameworks in the Debug Configuration.
+
+You must also open MyApp.xcodeproj/project.pbxproj (from Finder) and replace path = Flutter/Release/example.xcframework; with path = "Flutter/$(CONFIGURATION)/example.xcframework"; for all added frameworks. (Note the added ".)
+
+- Embed the frameworks
+
+The generated dynamic frameworks must be embedded into your app to be loaded at runtime.
+
+Important: Plugins might produce static or dynamic frameworks. Static frameworks should be linked on, but never embedded. If you embed a static framework into your application, your application is not publishable to the App Store and fails with a Found an unexpected Mach-O header code archive error.
+
+After linking the frameworks, you should see them in the Frameworks, Libraries, and Embedded Content section of your target’s General settings. To embed the dynamic frameworks select Embed & Sign.
+
+They will then appear under Embed Frameworks within Build Phases as follows:
+![Alt text](image-2.png)
