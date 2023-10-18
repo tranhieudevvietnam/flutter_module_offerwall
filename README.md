@@ -296,3 +296,51 @@ Note: You must hard code the [build mode] value. For example, use Debug if you n
 Link and embed the generated App.xcframework, FlutterPluginRegistrant.xcframework, and any plugin frameworks into your existing application as described in Option B.
 
 
+## Local Network Privacy Permissions
+
+On iOS 14 and higher, enable the Dart multicast DNS service in the Debug version of your app to add debugging functionalities such as hot-reload and DevTools via flutter attach.
+
+Warning: This service must not be enabled in the Release version of your app, or you might experience App Store rejections.
+
+One way to do this is to maintain a separate copy of your app’s Info.plist per build configuration. The following instructions assume the default Debug and Release. Adjust the names as needed depending on your app’s build configurations.
+
+- Rename your app’s Info.plist to Info-Debug.plist. Make a copy of it called Info-Release.plist and add it to your Xcode project.
+
+![Alt text](image-3.png)
+
+- In Info-Debug.plist only add the key NSBonjourServices and set the value to an array with the string _dartVmService._tcp. Note Xcode will display this as “Bonjour services”.
+
+Optionally, add the key NSLocalNetworkUsageDescription set to your desired customized permission dialog text.
+
+![Alt text](image-4.png)
+
+- In your target’s build settings, change the Info.plist File (INFOPLIST_FILE) setting path from path/to/Info.plist to path/to/Info-$(CONFIGURATION).plist.
+
+![Alt text](image-5.png)
+
+This will resolve to the path Info-Debug.plist in Debug and Info-Release.plist in Release.
+
+![Alt text](image-6.png)
+
+Alternatively, you can explicitly set the Debug path to Info-Debug.plist and the Release path to Info-Release.plist.
+
+- If the Info-Release.plist copy is in your target’s Build Settings > Build Phases > Copy Bundle Resources build phase, remove it.
+
+![Alt text](image-7.png)
+
+The first Flutter screen loaded by your Debug app will now prompt for local network permission. The permission can also be allowed by enabling Settings > Privacy > Local Network > Your App.
+
+![Alt text](image-8.png)
+
+## Apple Silicon (arm64 Macs)
+
+On an Apple Silicon (M1) Mac, the host app builds for an arm64 simulator. While Flutter supports arm64 simulators, some plugins might not. If you use one of these plugins, you might see a compilation error like Undefined symbols for architecture arm64 and you must exclude arm64 from the simulator architectures in your host app.
+
+In your host app target, find the Excluded Architectures (EXCLUDED_ARCHS) build setting. Click the right arrow disclosure indicator icon to expand the available build configurations. Hover over Debug and click the plus icon. Change Any SDK to Any iOS Simulator SDK. Add arm64 to the build settings value.
+
+![Alt text](image-9.png)
+
+When done correctly, Xcode will add "EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64; to your project.pbxproj file.
+
+Repeat for any iOS unit test targets.
+
