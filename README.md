@@ -112,4 +112,32 @@ myButton.setOnClickListener(new OnClickListener() {
   }
 });
 ```
+
 The previous example assumes that your Dart entrypoint is called main(), and your initial Flutter route is ‘/’. The Dart entrypoint can’t be changed using Intent, but the initial route can be changed using Intent. The following example demonstrates how to launch a FlutterActivity that initially renders a custom route in Flutter.
+```
+//kotlin
+myButton.setOnClickListener {
+  startActivity(
+    FlutterActivity
+      .withNewEngine()
+      .initialRoute("/my_route")
+      .build(this)
+  )
+}
+//java
+myButton.addOnClickListener(new OnClickListener() {
+  @Override
+  public void onClick(View v) {
+    startActivity(
+      FlutterActivity
+        .withNewEngine()
+        .initialRoute("/my_route")
+        .build(currentActivity)
+      );
+  }
+});
+```
+Replace "/my_route" with your desired initial route.
+
+The use of the withNewEngine() factory method configures a FlutterActivity that internally create its own FlutterEngine instance. This comes with a non-trivial initialization time. The alternative approach is to instruct FlutterActivity to use a pre-warmed, cached FlutterEngine, which minimizes Flutter’s initialization time. That approach is discussed next.
+
