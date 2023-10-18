@@ -141,3 +141,91 @@ Replace "/my_route" with your desired initial route.
 
 The use of the withNewEngine() factory method configures a FlutterActivity that internally create its own FlutterEngine instance. This comes with a non-trivial initialization time. The alternative approach is to instruct FlutterActivity to use a pre-warmed, cached FlutterEngine, which minimizes Flutter’s initialization time. That approach is discussed next.
 
+## IOS
+
+Flutter UI components can be incrementally added into your existing iOS application as embedded frameworks. There are a few ways to embed Flutter in your existing application.
+
+Use the CocoaPods dependency manager and installed Flutter SDK. In this case, the flutter_module is compiled from the source each time the app is built. (Recommended.)
+
+Create frameworks for the Flutter engine, your compiled Dart code, and all Flutter plugins. Here, you manually embed the frameworks, and update your existing application’s build settings in Xcode. This can be useful for teams that don’t want to require every developer to have the Flutter SDK and Cocoapods installed locally.
+
+Create frameworks for your compiled Dart code, and all Flutter plugins. Use CocoaPods for the Flutter engine. With this option, embed the frameworks for your application and the plugins in Xcode, but distribute the Flutter engine as a CocoaPods podspec. This is similar to the second option, but it provides an alternative to distributing the large Flutter.xcframework.
+
+For examples using an app built with UIKit, see the iOS directories in the add_to_app code samples. For an example using SwiftUI, see the iOS directory in News Feed App.
+
+### Option A - Embed with CocoaPods and the Flutter SDK
+
+This method requires every developer working on your project to have a locally installed version of the Flutter SDK. The Flutter module is compiled from source each time the app is built. Simply build your application in Xcode to automatically run the script to embed your Dart and plugin code. This allows rapid iteration with the most up-to-date version of your Flutter module without running additional commands outside of Xcode.
+
+The following example assumes that your existing application and the Flutter module are in sibling directories. If you have a different directory structure, you might need to adjust the relative paths.
+```
+some/path/
+├── my_flutter/
+│   └── .ios/
+│       └── Flutter/
+│         └── podhelper.rb
+└── MyApp/
+    └── Podfile
+```
+If your existing application (MyApp) doesn’t already have a Podfile, run pod init in the
+MyApp directory to create one. You can find more details on using CocoaPods in the CocoaPods getting started guide.
+
+- Add the following lines to your Podfile:
+
+```
+flutter_application_path = '../my_flutter'
+load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
+```
+
+- For each Podfile target that needs to embed Flutter, call install_all_flutter_pods(flutter_application_path).
+
+```
+target 'MyApp' do
+  install_all_flutter_pods(flutter_application_path)
+end
+```
+
+- In the Podfile’s post_install block, call flutter_post_install(installer).
+
+```
+post_install do |installer|
+  flutter_post_install(installer) if defined?(flutter_post_install)
+end
+```
+Note: The flutter_post_install method (added in Flutter 3.1.0), adds build settings to support native Apple Silicon arm64 iOS simulators. Include the if defined?(flutter_post_install) check to ensure your Podfile is valid if you are running on older versions of Flutter that don’t have this method.
+
+- Run pod install.
+
+Note: When you change the Flutter plugin dependencies in my_flutter/pubspec.yaml, run flutter pub get in your Flutter module directory to refresh the list of plugins read by the podhelper.rb script. Then, run pod install again from your application at some/path/MyApp.
+
+The podhelper.rb script embeds your plugins, Flutter.framework, and App.framework into your project.
+
+Your app’s Debug and Release build configurations embed the Debug or Release build modes of Flutter, respectively. Add a Profile build configuration to your app to test in profile mode.
+
+### Option B - Embed frameworks in Xcode
+
+Alternatively, you can generate the necessary frameworks and embed them in your application by manually editing your existing Xcode project. You might do this if members of your team can’t locally install Flutter SDK and CocoaPods, or if you don’t want to use CocoaPods as a dependency manager in your existing applications. You must run flutter build ios-framework every time you make code changes in your Flutter module.
+
+The following example assumes that you want to generate the frameworks to some/path/MyApp/Flutter/.
+
+```
+flutter build ios-framework --output=some/path/MyApp/Flutter/
+```
+
+some/path/MyApp/
+└── Flutter/
+    ├── Debug/
+    │   ├── Flutter.xcframework
+    │   ├── App.xcframework
+    │   ├── FlutterPluginRegistrant.xcframework (only if you have plugins with iOS platform code)
+    │   └── example_plugin.xcframework (each plugin is a separate framework)
+    ├── Profile/
+    │   ├── Flutter.xcframework
+    │   ├── App.xcframework
+    │   ├── FlutterPluginRegistrant.xcframework
+    │   └── example_plugin.xcframework
+    └── Release/
+        ├── Flutter.xcframework
+        ├── App.xcframework
+        ├── FlutterPluginRegistrant.xcframework
+        └── example_plugin.xcframework
