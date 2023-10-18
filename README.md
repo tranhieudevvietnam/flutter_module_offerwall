@@ -94,5 +94,22 @@ The reference to @style/LaunchTheme can be replaced by any Android theme that wa
 With FlutterActivity registered in your manifest file, add code to launch FlutterActivity from whatever point in your app that you’d like. The following example shows FlutterActivity being launched from an OnClickListener.
 ```
 import io.flutter.embedding.android.FlutterActivity;
-
 ```
+```
+//kotlin
+myButton.setOnClickListener {
+  startActivity(
+    FlutterActivity.createDefaultIntent(this)
+  )
+}
+//java
+myButton.setOnClickListener(new OnClickListener() {
+  @Override
+  public void onClick(View v) {
+    startActivity(
+      FlutterActivity.createDefaultIntent(currentActivity)
+    );
+  }
+});
+```
+The previous example assumes that your Dart entrypoint is called main(), and your initial Flutter route is ‘/’. The Dart entrypoint can’t be changed using Intent, but the initial route can be changed using Intent. The following example demonstrates how to launch a FlutterActivity that initially renders a custom route in Flutter.
