@@ -258,3 +258,41 @@ They will then appear under Embed Frameworks within Build Phases as follows:
 ![Alt text](image-2.png)
 You should now be able to build the project in Xcode using ⌘B.
 
+### Option C - Embed application and plugin frameworks in Xcode and Flutter framework with CocoaPods
+
+Alternatively, instead of distributing the large Flutter.xcframework to other developers, machines, or continuous integration systems, you can instead generate Flutter as CocoaPods podspec by adding the flag --cocoapods. This produces a Flutter.podspec instead of an engine Flutter.xcframework. The App.xcframework and plugin frameworks are generated as described in Option B.
+
+To generate the Flutter.podspec and frameworks, run the following from the command line in the root of your Flutter module:
+
+```
+flutter build ios-framework --cocoapods --output=some/path/MyApp/Flutter/
+```
+```
+some/path/MyApp/
+└── Flutter/
+    ├── Debug/
+    │   ├── Flutter.podspec
+    │   ├── App.xcframework
+    │   ├── FlutterPluginRegistrant.xcframework
+    │   └── example_plugin.xcframework (each plugin with iOS platform code is a separate framework)
+    ├── Profile/
+    │   ├── Flutter.podspec
+    │   ├── App.xcframework
+    │   ├── FlutterPluginRegistrant.xcframework
+    │   └── example_plugin.xcframework
+    └── Release/
+        ├── Flutter.podspec
+        ├── App.xcframework
+        ├── FlutterPluginRegistrant.xcframework
+        └── example_plugin.xcframework
+```
+Host apps using CocoaPods can add Flutter to their Podfile:
+```
+pod 'Flutter', :podspec => 'some/path/MyApp/Flutter/[build mode]/Flutter.podspec'
+```
+
+Note: You must hard code the [build mode] value. For example, use Debug if you need to use flutter attach and Release when you’re ready to ship.
+
+Link and embed the generated App.xcframework, FlutterPluginRegistrant.xcframework, and any plugin frameworks into your existing application as described in Option B.
+
+
